@@ -1,0 +1,18 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+[project]
+name = "ptcl_dataset"
+version = "0.0.1"
+authors = [{ name = "Lorenzo Cano", email = "lcano@unizar.es" }]
+description = "Dataset utilities for training ptcl features"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = ["Programming Language :: Python :: 3"]
+dependencies = ["numpy", "torch"]
+[tool.hatch.build]
+only-packages = true
+sources = ["src"]
+[tool.hatch.build.targets.wheel]
+only-include = ["src"]
+packages = ["src/ptcl_dataset"]
