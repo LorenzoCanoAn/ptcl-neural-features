@@ -55,10 +55,10 @@ PARAMETERS = {
     "batch_size": 16,
     "size_of_ptcl": 1024,
     "point_size": 3,
-    "feature_size": 256,
+    "feature_size": 1024,
     "output_size": 2,
     "dropout": 0.3,
-    "samples_to_gen":1000,
+    "samples_to_gen":5000,
     "samples_to_load":None,
     "compression_learning_rate": 1e-3,
     "distance_learning_rate": 1e-4,
@@ -73,7 +73,7 @@ odom_model = odom_model.to("cuda")
 ############################################
 # SETUP CRITERIONS
 ############################################
-compression_criterion = get_loss(lam=1000)
+compression_criterion = get_loss(lam=1)
 odom_criterion = nn.MSELoss(2)
 ############################################
 # SETUP OPTIMIZER
@@ -138,15 +138,15 @@ for n_epoch in tqdm(
         labels = labels.to("cuda")
         compression_optimizer.zero_grad()
         # COMPRESSION PASS
-        bppx, coor_reconx, cdx, compressed_x = compressor_model(ptcl1)
-        bppy, coor_recony, cdy, compressed_y = compressor_model(ptcl2)
+        coor_reconx, cdx, compressed_x = compressor_model(ptcl1)
+        coor_recony, cdy, compressed_y = compressor_model(ptcl2)
         plotter = Plotter(off_screen=True)
         plotter.add_mesh(pv.PolyData(ptcl1[0].detach().cpu().numpy()*5),color="b")
         plotter.add_mesh(pv.PolyData(coor_reconx[0].detach().cpu().numpy()*5),color="r")
         plotter.add_axes_at_origin()
         plotter.show(screenshot=f"/home/lorenzo/screenshot/{counter}.png")
-        compression_lossx = compression_criterion(bppx, cdx)
-        compression_lossy = compression_criterion(bppy, cdy)
+        compression_lossx = compression_criterion(cdx)
+        compression_lossy = compression_criterion(cdy)
         compression_loss = compression_lossx + compression_lossy 
         compression_loss.backward()
         compression_optimizer.step()
